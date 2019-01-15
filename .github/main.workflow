@@ -19,13 +19,13 @@ action "Docker Login" {
   needs = ["Docker Tag"]
   secrets = [
     "DOCKER_USERNAME",
-    "DOCKER_REGISTRY_URL",
     "DOCKER_PASSWORD",
+    "DOCKER_REGISTRY_URL",
   ]
 }
 
 action "Docker Push" {
   uses = "actions/docker/login@c08a5fc9e0286844156fefff2c141072048141f6"
   needs = ["Docker Login"]
-  args = "push gcr.io/vocal-operand-228712/quickstart-image"
+  args = "push eu.gcr.io/vocal-operand-228712/quickstart-image"
 }
