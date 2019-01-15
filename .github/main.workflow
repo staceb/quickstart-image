@@ -1,31 +1,41 @@
-workflow "New workflow" {
+workflow "GCloud" {
   on = "push"
-  resolves = ["Docker Push"]
+  resolves = ["Push image to GCR"]
 }
 
-action "Build" {
+action "Build Docker image" {
   uses = "actions/docker/cli@76ff57a6c3d817840574a98950b0c7bc4e8a13a8"
   args = "build -t quickstart-image ."
 }
 
-action "Docker Tag" {
-  uses = "actions/docker/tag@76ff57a6c3d817840574a98950b0c7bc4e8a13a8"
-  needs = ["Build"]
-  args = "quickstart-image gcr.io/vocal-operand-228712/quickstart-image"
+action "Setup Google Cloud" {
+  uses = "actions/gcloud/auth@master"
+  secrets = ["GCLOUD_AUTH"]
 }
 
-action "Docker Login" {
-  uses = "actions/docker/cli@76ff57a6c3d817840574a98950b0c7bc4e8a13a8"
-  needs = ["Docker Tag"]
-  secrets = [
-    "DOCKER_USERNAME",
-    "DOCKER_PASSWORD",
-    "DOCKER_REGISTRY_URL",
-  ]
+action "Tag image for GCR" {
+  needs = ["Setup Google Cloud", "Build Docker image"]
+  uses = "actions/docker/tag@master"
+  env = {
+    PROJECT_ID = "vocal-operand-228712"
+    APPLICATION_NAME = "quickstart-image"
+  }
+  args = ["quickstart-image", "gcr.io/$PROJECT_ID/$APPLICATION_NAME"]
 }
 
-action "Docker Push" {
-  uses = "actions/docker/login@c08a5fc9e0286844156fefff2c141072048141f6"
-  needs = ["Docker Login"]
-  args = "push eu.gcr.io/vocal-operand-228712/quickstart-image"
+action "Set Credential Helper for Docker" {
+  needs = ["Setup Google Cloud", "Tag image for GCR"]
+  uses = "actions/gcloud/cli@master"
+  args = ["auth", "configure-docker", "--quiet"]
+}
+
+action "Push image to GCR" {
+  needs = ["Setup Google Cloud"]
+  uses = "actions/gcloud/cli@master"
+  runs = "sh -c"
+  env = {
+    PROJECT_ID = "vocal-operand-228712"
+    APPLICATION_NAME = "quickstart-image"
+  }
+  args = ["docker push gcr.io/$PROJECT_ID/$APPLICATION_NAME"]
 }
