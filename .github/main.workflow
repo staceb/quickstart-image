@@ -23,3 +23,9 @@ action "Docker Login" {
     "DOCKER_PASSWORD",
   ]
 }
+
+action "Docker Push" {
+  uses = "actions/docker/cli@76ff57a6c3d817840574a98950b0c7bc4e8a13a8"
+  needs = ["Docker Login"]
+  args = "push gcr.io/vocal-operand-228712/quickstart-image"
+}
