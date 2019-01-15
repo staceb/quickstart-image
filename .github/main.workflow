@@ -1,6 +1,6 @@
 workflow "New workflow" {
   on = "push"
-  resolves = ["Docker Login"]
+  resolves = ["Docker Push"]
 }
 
 action "Build" {
@@ -25,7 +25,7 @@ action "Docker Login" {
 }
 
 action "Docker Push" {
-  uses = "actions/docker/cli@76ff57a6c3d817840574a98950b0c7bc4e8a13a8"
+  uses = "actions/docker/login@c08a5fc9e0286844156fefff2c141072048141f6"
   needs = ["Docker Login"]
   args = "push gcr.io/vocal-operand-228712/quickstart-image"
 }
