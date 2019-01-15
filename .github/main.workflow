@@ -9,12 +9,13 @@ action "Build Docker image" {
 }
 
 action "Setup Google Cloud" {
+  needs = ["Build Docker image"]
   uses = "actions/gcloud/auth@master"
   secrets = ["GCLOUD_AUTH"]
 }
 
 action "Tag image for GCR" {
-  needs = ["Setup Google Cloud", "Build Docker image"]
+  needs = ["Setup Google Cloud"]
   uses = "actions/docker/tag@master"
   env = {
     PROJECT_ID = "vocal-operand-228712"
@@ -24,13 +25,13 @@ action "Tag image for GCR" {
 }
 
 action "Set Credential Helper for Docker" {
-  needs = ["Setup Google Cloud", "Tag image for GCR"]
+  needs = ["Tag image for GCR"]
   uses = "actions/gcloud/cli@master"
   args = ["auth", "configure-docker", "--quiet"]
 }
 
 action "Push image to GCR" {
-  needs = ["Setup Google Cloud"]
+  needs = ["Set Credential Helper for Docker"]
   uses = "actions/gcloud/cli@master"
   runs = "sh -c"
   env = {
