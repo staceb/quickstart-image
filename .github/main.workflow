@@ -1,6 +1,6 @@
 workflow "New workflow" {
   on = "push"
-  resolves = ["GitHub Action for Google Cloud SDK auth"]
+  resolves = ["Docker Login"]
 }
 
 action "Build" {
@@ -20,6 +20,6 @@ action "Docker Login" {
   secrets = [
     "DOCKER_USERNAME",
     "DOCKER_REGISTRY_URL",
-    "DOCKER_PASSWORD"
+    "DOCKER_PASSWORD",
   ]
 }
