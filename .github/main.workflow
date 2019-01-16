@@ -1,5 +1,5 @@
 workflow "GCloud" {
-  on = "push"
+  on = "release"
   resolves = ["Push image to GCR"]
 }
 
